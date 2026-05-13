@@ -1,0 +1,2469 @@
+=============================<<<<<<<<<<<< SET 1   >>>>>>>>>>>>>===============================================
+
+-- 1) Create Tables
+
+CREATE TABLE Person (
+    driver_id INT PRIMARY KEY,
+    name VARCHAR(50),
+    address VARCHAR(100)
+);
+
+CREATE TABLE Car (
+    license VARCHAR(20) PRIMARY KEY,
+    model VARCHAR(50),
+    year INT
+);
+
+CREATE TABLE Accident (
+    report_no INT PRIMARY KEY,
+    date_acc DATE,
+    location VARCHAR(100)
+);
+
+CREATE TABLE Owns (
+    driver_id INT,
+    license VARCHAR(20),
+    PRIMARY KEY (driver_id, license),
+    FOREIGN KEY (driver_id) REFERENCES Person(driver_id),
+    FOREIGN KEY (license) REFERENCES Car(license)
+);
+
+CREATE TABLE Participated (
+    driver_id INT,
+    model VARCHAR(50),
+    report_no INT,
+    damage_amount DECIMAL(10,2),
+    PRIMARY KEY (driver_id, report_no),
+    FOREIGN KEY (driver_id) REFERENCES Person(driver_id)
+);
+
+
+
+-- 2) Insert 5 records into each table
+
+INSERT INTO Person VALUES
+(1, 'Rahul', 'Mumbai'),
+(2, 'Amit', 'Pune'),
+(3, 'Sneha', 'Delhi'),
+(4, 'Priya', 'Nashik'),
+(5, 'Karan', 'Chennai');
+
+INSERT INTO Car VALUES
+('MH01A101', 'Honda City', 2020),
+('MH02B202', 'Hyundai i20', 2019),
+('DL03C303', 'Swift', 2021),
+('TN04D404', 'Creta', 2022),
+('MH05E505', 'Baleno', 2018);
+
+INSERT INTO Accident VALUES
+(1001, '2024-01-10', 'Mumbai'),
+(1002, '2024-02-15', 'Pune'),
+(1003, '2024-03-20', 'Delhi'),
+(1004, '2024-04-05', 'Nashik'),
+(1005, '2024-05-12', 'Chennai');
+
+INSERT INTO Owns VALUES
+(1, 'MH01A101'),
+(2, 'MH02B202'),
+(3, 'DL03C303'),
+(4, 'TN04D404'),
+(5, 'MH05E505');
+
+INSERT INTO Participated VALUES
+(1, 'Honda City', 1001, 5000),
+(2, 'Hyundai i20', 1002, 3000),
+(3, 'Swift', 1003, 7000),
+(4, 'Creta', 1004, 2500),
+(5, 'Baleno', 1005, 4000);
+
+
+
+-- 3) Display the Schema of each table
+
+DESC Person;
+DESC Car;
+DESC Accident;
+DESC Owns;
+DESC Participated;
+
+
+
+-- 4) Display all records from Person table
+
+SELECT * FROM Person;
+
+
+
+
+-- 5) Set Foreign Key from Participated.report_no 
+--    to Accident.report_no
+
+ALTER TABLE Participated
+ADD CONSTRAINT fk_report
+FOREIGN KEY (report_no)
+REFERENCES Accident(report_no);
+
+
+
+-- 6) Add check constraint on damage_amount 
+--    so it should not be negative
+
+ALTER TABLE Participated
+ADD CONSTRAINT chk_damage
+CHECK (damage_amount >= 0);
+
+
+-- 7) Make name column in Person table NOT NULL
+
+ALTER TABLE Person
+MODIFY name VARCHAR(50) NOT NULL;
+
+
+-- 8) Rename Car table to Vehicle
+
+ALTER TABLE Car
+RENAME TO Vehicle;
+
+
+-- 9) Create new_person table from Person table
+
+CREATE TABLE new_person AS
+SELECT * FROM Person;
+
+-- Drop the new_person table
+
+DROP TABLE new_person;
+
+=============================<<<<<<<<<<<< SET 2   >>>>>>>>>>>>>===============================================
+
+CREATE TABLE Customer (
+    C_Id INT PRIMARY KEY,
+    Cname VARCHAR(50),
+    City VARCHAR(50)
+);
+
+CREATE TABLE Account (
+    C_Id INT,
+    Acc_Type VARCHAR(20),
+    Amount INT
+);
+
+INSERT INTO Customer VALUES
+(1,'John','Nashik'),
+(2,'Seema','Aurangabad'),
+(3,'Amita','Nagar'),
+(4,'Rakesh','Pune'),
+(5,'Samata','Nashik'),
+(6,'Ankita','Chandwad'),
+(7,'Bhavika','Pune'),
+(8,'Deepa','Mumbai'),
+(9,'Nitin','Nagpur'),
+(10,'Pooja','Pune');
+
+
+
+INSERT INTO Account VALUES
+(1,'Current',5000),
+(2,'Saving',20000),
+(3,'Saving',70000),
+(4,'Saving',50000),
+(6,'Current',35000),
+(7,'Loan',30000),
+(8,'Saving',50000),
+(9,'Saving',90000),
+(10,'Loan',8000),
+(11,'Current',45000);
+
+
+
+
+1)
+SELECT C.Cname, A.Acc_Type, A.Amount
+FROM Customer C
+JOIN Account A
+ON C.C_Id = A.C_Id
+WHERE A.Acc_Type = 'Saving';
+
+2).
+
+SELECT *
+FROM Customer
+NATURAL JOIN Account;
+
+SELECT *
+FROM Customer
+LEFT JOIN Account
+ON Customer.C_Id = Account.C_Id;
+
+SELECT *
+FROM Customer
+RIGHT JOIN Account
+ON Customer.C_Id = Account.C_Id;
+
+3
+
+SELECT *
+FROM Customer
+WHERE City = (
+    SELECT City
+    FROM Customer
+    WHERE Cname = 'Pooja'
+);
+
+4
+
+SELECT *
+FROM Account
+WHERE Amount < (
+    SELECT AVG(Amount)
+    FROM Account
+);
+
+5
+SELECT C_Id
+FROM Account
+WHERE Amount = (
+    SELECT MAX(Amount)
+    FROM Account
+);
+6
+SELECT Amount, Acc_Type
+FROM Account A1
+WHERE Amount = (
+    SELECT MIN(Amount)
+    FROM Account A2
+    WHERE A1.Acc_Type = A2.Acc_Type
+);
+7
+SELECT Amount
+FROM Account
+WHERE Amount > ANY (
+    SELECT Amount
+    FROM Account
+    WHERE Acc_Type = 'Saving'
+);
+
+=============================<<<<<<<<<<<< SET 3   >>>>>>>>>>>>>===============================================
+
+CREATE TABLE Department (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50),
+    location VARCHAR(50)
+);
+
+CREATE TABLE Employee (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50),
+    city VARCHAR(50),
+    salary DECIMAL(10,2) DEFAULT 0,
+    department INT,
+
+    FOREIGN KEY (department)
+    REFERENCES Department(dept_id)
+);
+
+1
+DESC Employee;
+
+DESC Department;
+
+2
+INSERT INTO Department VALUES
+(1,'HR','Mumbai'),
+(2,'IT','Pune'),
+(3,'Finance','Delhi'),
+(4,'Marketing','Nashik'),
+(5,'Sales','Nagpur'),
+(6,'Support','Aurangabad'),
+(7,'Admin','Mumbai'),
+(8,'Testing','Pune'),
+(9,'Security','Nagar'),
+(10,'Research','Chennai');
+
+INSERT INTO Employee VALUES
+(101,'Amit','Mumbai',30000,1),
+(102,'Neha','Pune',45000,2),
+(103,'Deepak','Delhi',40000,3),
+(104,'Reena','Nashik',35000,4),
+(105,'Tejas','Nagpur',38000,5),
+(106,'Seema','Aurangabad',42000,6),
+(107,'Ketan','Mumbai',28000,7),
+(108,'Meena','Pune',50000,8),
+(109,'Jeet','Nagar',36000,2),
+(110,'Veena','Chennai',47000,10);
+
+3
+INSERT INTO Department
+VALUES (11,'Operations','Hyderabad');
+
+4
+
+INSERT INTO Employee(emp_id, emp_name, city, department)
+VALUES (111,'Rohan','Pune',2);
+
+5
+UPDATE Employee
+SET salary = salary + (salary * 0.20);
+
+6
+SELECT emp_name,
+       salary * 12 AS annual_salary
+FROM Employee
+WHERE emp_name LIKE '_e%';
+
+7
+UPDATE Employee
+SET city = 'Pune'
+WHERE department = (
+    SELECT dept_id
+    FROM Department
+    WHERE dept_name = 'IT'
+);
+
+
+verification qury
+
+SELECT *
+FROM Employee
+WHERE department = (
+    SELECT dept_id
+    FROM Department
+    WHERE dept_name = 'IT'
+);
+
+
+=============================<<<<<<<<<<<< SET 4   >>>>>>>>>>>>>===============================================
+
+CREATE TABLE Department (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50),
+    location VARCHAR(50)
+);
+
+
+CREATE TABLE Employee (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50),
+    city VARCHAR(50),
+    salary DECIMAL(10,2),
+    department INT,
+
+    FOREIGN KEY (department)
+    REFERENCES Department(dept_id)
+);
+
+
+1
+DESC Employee;
+2
+INSERT INTO Department VALUES
+(1,'HR','Mumbai'),
+(2,'IT','Pune'),
+(3,'Finance','Delhi'),
+(4,'Marketing','Nashik'),
+(5,'Sales','Nagpur'),
+(6,'Admin','Mumbai'),
+(7,'Testing','Pune'),
+(8,'Support','Aurangabad'),
+(9,'Security','Chennai'),
+(10,'Research','Hyderabad');
+
+
+INSERT INTO Employee VALUES
+(101,'Amit','Mumbai',45000,1),
+(102,'Ajay','Delhi',120000,2),
+(103,'Neha','Pune',60000,2),
+(104,'Anita','Nagpur',35000,3),
+(105,'Rakesh','Mumbai',80000,4),
+(106,'Akash','Nashik',55000,2),
+(107,'Seema','Aurangabad',30000,5),
+(108,'Arjun','Delhi',150000,2),
+(109,'Meena','Mumbai',40000,6),
+(110,'Aman','Pune',70000,7);
+
+
+3
+
+UPDATE Employee
+SET city = 'Pune'
+WHERE department = (
+    SELECT dept_id
+    FROM Department
+    WHERE dept_name = 'IT'
+);
+
+4
+DELETE FROM Employee
+WHERE salary > 100000;
+
+5
+SELECT emp_name,
+       salary - (salary * 0.05) AS salary_after_tax
+FROM Employee;
+
+6
+SELECT *
+FROM Employee
+WHERE city <> 'Mumbai'
+AND emp_name LIKE 'A%';
+
+7
+SELECT *
+FROM Employee
+WHERE department = (
+    SELECT dept_id
+    FROM Department
+    WHERE dept_name = 'IT'
+)
+AND salary > 50000;
+
+
+
+=============================<<<<<<<<<<<< SET 5   >>>>>>>>>>>>>===============================================
+
+
+1
+CREATE USER 'Class_div_rollno'@'localhost'
+IDENTIFIED BY 'password123';
+
+2
+GRANT SELECT
+ON Employee
+TO 'Class_div_rollno'@'localhost';
+
+3
+GRANT INSERT, UPDATE
+ON Employee
+TO 'Class_div_rollno'@'localhost';
+4
+REVOKE UPDATE
+ON Employee
+FROM 'user1'@'localhost';
+5
+CREATE ROLE manager_role;
+6
+GRANT SELECT, DELETE
+ON Employee
+TO manager_role;
+7
+REVOKE manager_role
+FROM 'user2'@'localhost';
+
+
+
+check granted permission :-
+
+SHOW GRANTS FOR 'Class_div_rollno'@'localhost';
+
+
+
+
+=============================<<<<<<<<<<<< SET 6   >>>>>>>>>>>>>===============================================
+
+
+CREATE TABLE Employees (
+    EMPLOYEE_ID NUMBER(6) PRIMARY KEY,
+    FIRST_NAME VARCHAR2(20),
+    LAST_NAME VARCHAR2(25) NOT NULL,
+    EMAIL VARCHAR2(25) NOT NULL,
+    PHONE_NUMBER VARCHAR2(20),
+    HIRE_DATE DATE NOT NULL,
+    JOB_ID VARCHAR2(10) NOT NULL,
+    SALARY NUMBER(8,2),
+    COMMISSION_PCT NUMBER(2,2),
+    MANAGER_ID NUMBER(6),
+    DEPARTMENT_ID NUMBER(4)
+);
+
+CREATE TABLE Departments (
+    DEPARTMENT_ID NUMBER(4) PRIMARY KEY,
+    DEPARTMENT_NAME VARCHAR2(30) NOT NULL,
+    MANAGER_ID NUMBER(6),
+    LOCATION_ID NUMBER(4)
+);
+
+
+INSERT INTO Departments VALUES (10,'IT',101,1001);
+INSERT INTO Departments VALUES (20,'HR',102,1002);
+INSERT INTO Departments VALUES (30,'Finance',103,1003);
+
+
+INSERT INTO Employees VALUES
+(1,'Vaishali','Patil','v@gmail.com','9876543210',
+TO_DATE('10-01-2020','DD-MM-YYYY'),
+'IT_PROG',50000,0.10,101,10);
+
+INSERT INTO Employees VALUES
+(2,'Amit','Sharma','a@gmail.com','9876543211',
+TO_DATE('15-03-2021','DD-MM-YYYY'),
+'HR_EXEC',40000,0.05,102,20);
+
+INSERT INTO Employees VALUES
+(3,'Neha','Joshi','n@gmail.com','9876543212',
+TO_DATE('20-06-2022','DD-MM-YYYY'),
+'FIN_ACC',45000,0.08,103,30);
+
+
+1
+CREATE TABLE EmpTest AS
+SELECT *
+FROM Employees;
+
+2
+USER
+INSERT INTO EmpTest
+(EMPLOYEE_ID, FIRST_NAME, SALARY)
+VALUES
+(4, USER, 35000);
+
+3
+UPDATE EmpTest
+SET SALARY = SALARY * 1.15
+WHERE FIRST_NAME = 'Vaishali';
+
+
+SELECT FIRST_NAME, SALARY
+FROM EmpTest
+WHERE FIRST_NAME = 'Vaishali';
+
+4
+UPDATE EmpTest
+SET SALARY = SALARY * 1.10
+WHERE DEPARTMENT_ID IN (
+    SELECT DEPARTMENT_ID
+    FROM Departments
+    WHERE LOCATION_ID = 1001
+);
+
+5
+UPDATE EmpTest
+SET COMMISSION_PCT = NULL;
+
+6
+DELETE FROM EmpTest
+WHERE DEPARTMENT_ID = 10;
+
+7
+ROLLBACK;
+
+
+SELECT *
+FROM EmpTest
+WHERE DEPARTMENT_ID = 10;
+
+
+
+=============================<<<<<<<<<<<< SET 7   >>>>>>>>>>>>>===============================================
+
+
+CREATE TABLE Employees (
+    EMPLOYEE_ID NUMBER(6) PRIMARY KEY,
+    FIRST_NAME VARCHAR2(20),
+    LAST_NAME VARCHAR2(25) NOT NULL,
+    EMAIL VARCHAR2(25) NOT NULL,
+    PHONE_NUMBER VARCHAR2(20),
+    HIRE_DATE DATE NOT NULL,
+    JOB_ID VARCHAR2(10) NOT NULL,
+    SALARY NUMBER(8,2),
+    COMMISSION_PCT NUMBER(2,2),
+    MANAGER_ID NUMBER(6),
+    DEPARTMENT_ID NUMBER(4)
+);
+
+INSERT INTO Employees VALUES
+(101,'Amit','Sharma','amit@gmail.com','9876543210',
+TO_DATE('10-01-2020','DD-MM-YYYY'),
+'IT_PROG',50000,0.10,201,10);
+
+INSERT INTO Employees VALUES
+(102,'Neha','Patil','neha@gmail.com','9876543211',
+TO_DATE('15-03-2021','DD-MM-YYYY'),
+'HR_EXEC',40000,0.05,202,20);
+
+INSERT INTO Employees VALUES
+(103,'Rahul','Joshi','rahul@gmail.com','9876543212',
+TO_DATE('20-06-2022','DD-MM-YYYY'),
+'FIN_ACC',45000,0.08,203,30);
+
+
+1
+
+INSERT INTO Employees VALUES
+(104,'Vaishali','Deshmukh','vaishali@gmail.com',
+'9876543213',
+TO_DATE('12-02-2023','DD-MM-YYYY'),
+'ADMIN',55000,0.07,204,40);
+COMMIT;
+
+2
+UPDATE Employees
+SET SALARY = SALARY + 5000
+WHERE EMPLOYEE_ID = 101;
+
+ROLLBACK;
+
+3
+SAVEPOINT SP1;
+
+UPDATE Employees
+SET SALARY = SALARY * 1.10
+WHERE EMPLOYEE_ID = 102;
+
+ROLLBACK TO SP1;
+
+4
+SAVEPOINT SP_A;
+
+UPDATE Employees
+SET SALARY = SALARY + 2000
+WHERE EMPLOYEE_ID = 101;
+
+SAVEPOINT SP_B;
+
+UPDATE Employees
+SET SALARY = SALARY + 3000
+WHERE EMPLOYEE_ID = 102;
+
+ROLLBACK TO SP_B;
+
+5
+DELETE FROM Employees
+WHERE EMPLOYEE_ID = 103;
+
+COMMIT;
+s
+
+
+=============================<<<<<<<<<<<< SET 8   >>>>>>>>>>>>>===============================================
+
+CREATE TABLE Employee (
+    EMPLOYEE_ID NUMBER(6) PRIMARY KEY,
+
+    FIRST_NAME VARCHAR2(20),
+
+    LAST_NAME VARCHAR2(25) NOT NULL,
+
+    EMAIL VARCHAR2(25) NOT NULL UNIQUE,
+
+    PHONE_NUMBER VARCHAR2(20),
+
+    HIRE_DATE DATE NOT NULL,
+
+    JOB_ID VARCHAR2(10) NOT NULL,
+
+    SALARY NUMBER(8,2)
+        CHECK (SALARY > 0),
+
+    COMMISSION_PCT NUMBER(2,2),
+
+    MANAGER_ID NUMBER(6),
+
+    DEPARTMENT_ID NUMBER(4)
+);
+
+
+INSERT INTO Employee VALUES
+(101,'Amit','Sharma','amit@gmail.com','9876543210',
+TO_DATE('10-01-2020','DD-MM-YYYY'),
+'IT_PROG',50000,0.10,201,10);
+
+INSERT INTO Employee VALUES
+(102,'Neha','Patil','neha@gmail.com','9876543211',
+TO_DATE('12-02-2021','DD-MM-YYYY'),
+'HR_EXEC',40000,0.05,202,20);
+
+INSERT INTO Employee VALUES
+(103,'Rahul','Joshi','rahul@gmail.com','9876543212',
+TO_DATE('15-03-2022','DD-MM-YYYY'),
+'IT_PROG',70000,0.08,201,10);
+
+INSERT INTO Employee VALUES
+(104,'Vaishali','Deshmukh','vaishali@gmail.com','9876543213',
+TO_DATE('20-04-2022','DD-MM-YYYY'),
+'MANAGER',90000,0.12,203,30);
+
+INSERT INTO Employee VALUES
+(105,'Seema','Kulkarni','seema@gmail.com','9876543214',
+TO_DATE('11-06-2023','DD-MM-YYYY'),
+'HR_EXEC',30000,0.04,202,20);
+
+
+
+1
+SELECT
+MAX(SALARY) AS Highest_Salary,
+MIN(SALARY) AS Lowest_Salary,
+SUM(SALARY) AS Total_Salary,
+AVG(SALARY) AS Average_Salary
+FROM Employee;
+
+
+2
+SELECT JOB_ID,
+COUNT(*) AS Number_of_Employees
+FROM Employee
+GROUP BY JOB_ID;
+
+3
+SELECT COUNT(DISTINCT MANAGER_ID) AS Number_of_Managers
+FROM Employee;
+
+4
+
+SELECT
+MAX(SALARY) - MIN(SALARY) AS DIFFERENCE
+FROM Employee;
+
+5
+SELECT
+MANAGER_ID,
+MIN(SALARY) AS Lowest_Salary
+FROM Employee
+GROUP BY MANAGER_ID;
+
+
+
+=============================<<<<<<<<<<<< SET 9   >>>>>>>>>>>>>===============================================
+
+CREATE TABLE Employee (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50) NOT NULL,
+    department VARCHAR(50) NOT NULL,
+    city VARCHAR(50),
+    salary DECIMAL(10,2)
+        CHECK (salary > 0)
+);
+
+INSERT INTO Employee VALUES
+(101,'Amit','IT','Pune',70000),
+(102,'Neha','HR','Mumbai',45000),
+(103,'Rahul','IT','Pune',65000),
+(104,'Vaishali','Finance','Delhi',80000),
+(105,'Seema','HR','Mumbai',40000),
+(106,'Akash','IT','Pune',72000),
+(107,'Rohan','Sales','Nagpur',35000),
+(108,'Meena','Finance','Delhi',90000),
+(109,'Ajay','Sales','Mumbai',30000),
+(110,'Pooja','IT','Pune',60000);
+
+
+
+1
+SELECT department,
+SUM(salary) AS Total_Salary
+FROM Employee
+GROUP BY department;
+
+
+2
+SELECT department,
+AVG(salary) AS Average_Salary
+FROM Employee
+GROUP BY department;
+
+
+3
+SELECT city,
+COUNT(*) AS Employee_Count
+FROM Employee
+GROUP BY city
+HAVING COUNT(*) > 3;
+
+
+4
+SELECT department,
+MAX(salary) AS Maximum_Salary
+FROM Employee
+GROUP BY department
+HAVING MAX(salary) > 60000;
+
+5
+SELECT department,
+city,
+SUM(salary) AS Total_Salary
+FROM Employee
+GROUP BY department, city;
+
+6
+SELECT department,
+COUNT(*) AS Employee_Count
+FROM Employee
+GROUP BY department
+HAVING COUNT(*) > 1;
+
+7
+SELECT city,
+COUNT(*) AS Employee_Count
+FROM Employee
+GROUP BY city
+ORDER BY Employee_Count DESC;
+
+
+=============================<<<<<<<<<<<< SET 10   >>>>>>>>>>>>>===============================================
+
+
+CREATE TABLE Employee (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50) NOT NULL,
+    department VARCHAR(50) NOT NULL,
+    city VARCHAR(50),
+    salary DECIMAL(10,2)
+        CHECK (salary > 0)
+);
+
+INSERT INTO Employee VALUES
+(101,'Amit','IT','Pune',70000),
+(102,'Neha','HR','Mumbai',45000),
+(103,'Rahul','IT','Pune',65000),
+(104,'Vaishali','Finance','Delhi',90000),
+(105,'Seema','HR','Mumbai',50000),
+(106,'Akash','IT','Pune',80000),
+(107,'Rohan','Sales','Nagpur',35000),
+(108,'Meena','Finance','Delhi',95000),
+(109,'Ajay','Sales','Mumbai',30000),
+(110,'Pooja','IT','Pune',75000);
+
+1
+
+
+SELECT department,
+SUM(salary) AS Total_Salary
+FROM Employee
+GROUP BY department
+HAVING SUM(salary) > 200000;
+2
+
+SELECT department,
+AVG(salary) AS Average_Salary
+FROM Employee
+GROUP BY department
+HAVING AVG(salary) > 40000;
+
+3
+
+SELECT city,
+COUNT(*) AS Employee_Count
+FROM Employee
+GROUP BY city;
+
+
+4
+SELECT department,
+MAX(salary) AS Maximum_Salary
+FROM Employee
+GROUP BY department;
+
+5
+SELECT city,
+AVG(salary) AS Average_Salary
+FROM Employee
+GROUP BY city;
+
+
+6
+SELECT department,
+COUNT(*) AS Employee_Count
+FROM Employee
+GROUP BY department
+HAVING COUNT(*) > 3;
+
+
+7
+SELECT city,
+COUNT(*) AS Employee_Count
+FROM Employee
+GROUP BY city
+ORDER BY Employee_Count ASC;
+
+
+
+=============================<<<<<<<<<<<< SET 11   >>>>>>>>>>>>>===============================================
+
+
+CREATE TABLE dept1 (
+    DEPTNO INTEGER PRIMARY KEY,
+    dname VARCHAR2(30) NOT NULL,
+    loc VARCHAR2(30) NOT NULL
+);
+
+2
+ALTER TABLE dept1
+ADD mgr NUMBER;
+
+3
+
+CREATE TABLE empl (
+    empno INTEGER,
+    ename VARCHAR2(20),
+    sal NUMBER(10,2),
+    deptno NUMBER
+);
+
+4
+
+add pk --
+
+
+ALTER TABLE empl
+ADD CONSTRAINT pk_empno
+PRIMARY KEY (empno);
+
+adding not null --
+
+
+
+ALTER TABLE empl
+MODIFY ename VARCHAR2(20) NOT NULL;
+
+chk constraints --
+
+
+
+ALTER TABLE empl
+ADD CONSTRAINT chk_sal
+CHECK (sal > 10000);
+
+
+fk on deptno --
+
+
+ALTER TABLE empl
+ADD CONSTRAINT fk_deptno
+FOREIGN KEY (deptno)
+REFERENCES dept1(DEPTNO);
+
+
+5
+CREATE TABLE dept11 AS
+SELECT *
+FROM dept1;
+
+
+CREATE TABLE emp11 AS
+SELECT *
+FROM empl;
+
+
+6
+ALTER TABLE empl
+ADD address VARCHAR2(30);
+
+
+7
+ALTER TABLE empl
+RENAME COLUMN sal TO salary;
+
+
+8
+SELECT constraint_name,
+       constraint_type
+FROM user_constraints
+WHERE table_name = 'EMPL';
+
+
+
+=============================<<<<<<<<<<<< SET 12   >>>>>>>>>>>>>===============================================
+
+
+
+CREATE TABLE Employees (
+    EMPLOYEE_ID NUMBER(6) PRIMARY KEY,
+    FIRST_NAME VARCHAR2(20),
+    LAST_NAME VARCHAR2(25) NOT NULL,
+    EMAIL VARCHAR2(25) NOT NULL,
+    PHONE_NUMBER VARCHAR2(20),
+    HIRE_DATE DATE NOT NULL,
+    JOB_ID VARCHAR2(10) NOT NULL,
+    SALARY NUMBER(8,2),
+    COMMISSION_PCT NUMBER(2,2),
+    MANAGER_ID NUMBER(6),
+    DEPARTMENT_ID NUMBER(4)
+);
+
+CREATE TABLE Departments (
+    DEPARTMENT_ID NUMBER(4) PRIMARY KEY,
+    DEPARTMENT_NAME VARCHAR2(30) NOT NULL,
+    MANAGER_ID NUMBER(6),
+    LOCATION_ID NUMBER(4)
+);
+
+
+INSERT INTO Departments VALUES (10,'HR',101,1001);
+INSERT INTO Departments VALUES (20,'SALES',102,1002);
+INSERT INTO Departments VALUES (30,'IT',103,1003);
+INSERT INTO Departments VALUES (40,'FINANCE',104,1004);
+
+
+INSERT INTO Employees VALUES
+(101,'King','Smith','king@gmail.com','9876543210',
+TO_DATE('10-01-2020','DD-MM-YYYY'),
+'MANAGER',90000,0.20,NULL,10);
+
+INSERT INTO Employees VALUES
+(102,'Amit','Sharma','amit@gmail.com','9876543211',
+TO_DATE('12-02-2021','DD-MM-YYYY'),
+'SALESMAN',45000,0.10,101,20);
+
+INSERT INTO Employees VALUES
+(103,'Neha','Patil','neha@gmail.com','9876543212',
+TO_DATE('15-03-2022','DD-MM-YYYY'),
+'DEVELOPER',60000,0.08,101,30);
+
+INSERT INTO Employees VALUES
+(104,'Rahul','Joshi','rahul@gmail.com','9876543213',
+TO_DATE('20-04-2023','DD-MM-YYYY'),
+'SALESMAN',40000,0.05,101,20);
+
+
+1
+
+SELECT
+EMPLOYEE_ID,
+FIRST_NAME,
+SALARY,
+DEPARTMENT_NAME,
+LOCATION_ID
+FROM Employees
+NATURAL JOIN Departments;
+
+2
+
+SELECT
+JOB_ID,
+MANAGER_ID,
+SALARY,
+COMMISSION_PCT,
+DEPARTMENT_NAME
+FROM Employees E
+JOIN Departments D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+WHERE JOB_ID = 'SALESMAN';
+
+
+3
+SELECT
+FIRST_NAME,
+JOB_ID,
+E.DEPARTMENT_ID,
+DEPARTMENT_NAME
+FROM Employees E
+JOIN Departments D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+WHERE D.LOCATION_ID = 1002;
+
+4
+SELECT
+E.EMPLOYEE_ID,
+E.FIRST_NAME,
+E.JOB_ID,
+E.MANAGER_ID,
+D.DEPARTMENT_NAME
+FROM Employees E
+LEFT JOIN Departments D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+ORDER BY E.EMPLOYEE_ID;
+
+
+=============================<<<<<<<<<<<< SET 13   >>>>>>>>>>>>>===============================================
+
+
+CREATE TABLE Employees (
+    EMPLOYEE_ID NUMBER(6) PRIMARY KEY,
+    FIRST_NAME VARCHAR2(20),
+    LAST_NAME VARCHAR2(25) NOT NULL,
+    EMAIL VARCHAR2(25) NOT NULL,
+    PHONE_NUMBER VARCHAR2(20),
+    HIRE_DATE DATE NOT NULL,
+    JOB_ID VARCHAR2(10) NOT NULL,
+    SALARY NUMBER(8,2),
+    COMMISSION_PCT NUMBER(2,2),
+    MANAGER_ID NUMBER(6),
+    DEPARTMENT_ID NUMBER(4)
+);
+
+CREATE TABLE Departments (
+    DEPARTMENT_ID NUMBER(4) PRIMARY KEY,
+    DEPARTMENT_NAME VARCHAR2(30) NOT NULL,
+    MANAGER_ID NUMBER(6),
+    LOCATION_ID NUMBER(4)
+);
+
+
+CREATE TABLE SALGRADE (
+    GRADE NUMBER,
+    LOSAL NUMBER,
+    HISAL NUMBER
+);
+
+
+INSERT INTO Departments VALUES (10,'HR',101,1001);
+INSERT INTO Departments VALUES (20,'SALES',102,1002);
+INSERT INTO Departments VALUES (30,'IT',103,1003);
+
+
+INSERT INTO Employees VALUES
+(101,'King','Smith','king@gmail.com','9876543210',
+TO_DATE('10-01-2020','DD-MM-YYYY'),
+'MANAGER',5000,0.20,NULL,10);
+
+INSERT INTO Employees VALUES
+(102,'Amit','Sharma','amit@gmail.com','9876543211',
+TO_DATE('12-02-2021','DD-MM-YYYY'),
+'SALESMAN',3000,0.10,101,20);
+
+INSERT INTO Employees VALUES
+(103,'Neha','Patil','neha@gmail.com','9876543212',
+TO_DATE('15-03-2022','DD-MM-YYYY'),
+'DEVELOPER',4000,0.08,101,30);
+
+INSERT INTO Employees VALUES
+(104,'Rahul','Joshi','rahul@gmail.com','9876543213',
+TO_DATE('20-04-2023','DD-MM-YYYY'),
+'CLERK',1500,0.05,101,20);
+
+
+INSERT INTO SALGRADE VALUES (1,1000,1999);
+INSERT INTO SALGRADE VALUES (2,2000,2999);
+INSERT INTO SALGRADE VALUES (3,3000,3999);
+INSERT INTO SALGRADE VALUES (4,4000,4999);
+INSERT INTO SALGRADE VALUES (5,5000,9999);
+
+
+1
+DESC SALGRADE;
+
+
+SELECT
+E.FIRST_NAME,
+E.JOB_ID,
+D.DEPARTMENT_NAME,
+E.SALARY,
+S.GRADE
+FROM Employees E
+JOIN Departments D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+JOIN SALGRADE S
+ON E.SALARY BETWEEN S.LOSAL AND S.HISAL;
+
+2
+SELECT
+E.FIRST_NAME,
+E.SALARY,
+E.MANAGER_ID,
+D.DEPARTMENT_NAME
+FROM Employees E
+JOIN Departments D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+WHERE E.SALARY > 2000;
+
+3
+SELECT
+E.EMPLOYEE_ID,
+E.FIRST_NAME,
+E.JOB_ID,
+E.DEPARTMENT_ID,
+D.DEPARTMENT_NAME,
+D.LOCATION_ID
+FROM Employees E
+LEFT OUTER JOIN Departments D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID;
+
+
+4
+SELECT
+E.FIRST_NAME,
+D.DEPARTMENT_NAME
+FROM Employees E
+RIGHT OUTER JOIN Departments D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID;
+
+
+5
+SELECT
+E.EMPLOYEE_ID,
+D.DEPARTMENT_NAME,
+D.LOCATION_ID
+FROM Employees E
+FULL OUTER JOIN Departments D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID;
+
+
+=============================<<<<<<<<<<<< SET 14   >>>>>>>>>>>>>===============================================
+
+
+CREATE TABLE Employees (
+    EMPLOYEE_ID NUMBER(6) PRIMARY KEY,
+    FIRST_NAME VARCHAR2(20),
+    LAST_NAME VARCHAR2(25) NOT NULL,
+    EMAIL VARCHAR2(25) NOT NULL,
+    PHONE_NUMBER VARCHAR2(20),
+    HIRE_DATE DATE NOT NULL,
+    JOB_ID VARCHAR2(10) NOT NULL,
+    SALARY NUMBER(8,2),
+    COMMISSION_PCT NUMBER(2,2),
+    MANAGER_ID NUMBER(6),
+    DEPARTMENT_ID NUMBER(4)
+);
+
+CREATE TABLE Departments (
+    DEPARTMENT_ID NUMBER(4) PRIMARY KEY,
+    DEPARTMENT_NAME VARCHAR2(30) NOT NULL,
+    MANAGER_ID NUMBER(6),
+    LOCATION_ID NUMBER(4)
+);
+
+INSERT INTO Departments VALUES (10,'HR',101,1001);
+INSERT INTO Departments VALUES (20,'SALES',102,1002);
+INSERT INTO Departments VALUES (30,'IT',103,1003);
+INSERT INTO Departments VALUES (40,'FINANCE',104,1004);
+INSERT INTO Departments VALUES (50,'ADMIN',105,1005);
+
+
+INSERT INTO Employees VALUES
+(101,'King','Smith','king@gmail.com','9876543210',
+TO_DATE('10-01-2020','DD-MM-YYYY'),
+'MANAGER',90000,0.20,NULL,10);
+
+INSERT INTO Employees VALUES
+(102,'Amit','Sharma','amit@gmail.com','9876543211',
+TO_DATE('12-02-2021','DD-MM-YYYY'),
+'SALESMAN',45000,0.10,101,20);
+
+INSERT INTO Employees VALUES
+(103,'Neha','Patil','neha@gmail.com','9876543212',
+TO_DATE('15-03-2022','DD-MM-YYYY'),
+'DEVELOPER',60000,0.08,101,30);
+
+INSERT INTO Employees VALUES
+(104,'Rahul','Joshi','rahul@gmail.com','9876543213',
+TO_DATE('20-04-2023','DD-MM-YYYY'),
+'CLERK',30000,0.05,101,20);
+
+INSERT INTO Employees VALUES
+(105,'Pooja','Deshmukh','pooja@gmail.com','9876543214',
+TO_DATE('11-06-2023','DD-MM-YYYY'),
+'SALESMAN',50000,0.12,101,30);
+
+
+1
+
+SELECT
+E.JOB_ID,
+E.MANAGER_ID,
+E.SALARY,
+E.COMMISSION_PCT,
+D.DEPARTMENT_NAME
+FROM Employees E
+JOIN Departments D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+WHERE E.JOB_ID = 'SALESMAN';
+
+2
+SELECT
+E.FIRST_NAME,
+E.JOB_ID,
+E.DEPARTMENT_ID,
+D.DEPARTMENT_NAME
+FROM Employees E
+JOIN Departments D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+WHERE D.LOCATION_ID = 1002;
+
+
+3
+SELECT
+E.FIRST_NAME,
+D.DEPARTMENT_NAME
+FROM Employees E
+RIGHT OUTER JOIN Departments D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID;
+
+4
+SELECT
+E.FIRST_NAME,
+D.DEPARTMENT_NAME
+FROM Employees E
+LEFT OUTER JOIN Departments D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID;
+
+5
+SELECT
+E.EMPLOYEE_ID,
+E.FIRST_NAME,
+D.LOCATION_ID
+FROM Employees E
+JOIN Departments D
+ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+WHERE E.JOB_ID = 'CLERK';
+
+
+
+=============================<<<<<<<<<<<< SET 15   >>>>>>>>>>>>>===============================================
+DECLARE
+    v_empno EMP.EMPNO%TYPE := &EMPNO;
+    v_ename EMP.ENAME%TYPE := '&ENAME';
+    v_sal   EMP.SAL%TYPE := &SAL;
+    
+    v_count NUMBER;
+BEGIN
+    -- Check whether EMPNO exists
+    SELECT COUNT(*)
+    INTO v_count
+    FROM EMP
+    WHERE EMPNO = v_empno;
+
+    IF v_count = 0 THEN
+        -- Insert new record
+        INSERT INTO EMP (EMPNO, ENAME, SAL)
+        VALUES (v_empno, v_ename, v_sal);
+
+        DBMS_OUTPUT.PUT_LINE('Record Inserted Successfully');
+    ELSE
+        -- Update existing record
+        UPDATE EMP
+        SET ENAME = v_ename,
+            SAL = v_sal
+        WHERE EMPNO = v_empno;
+
+        DBMS_OUTPUT.PUT_LINE('Record Updated Successfully');
+    END IF;
+
+    COMMIT;
+END;
+/
+
+=============================<<<<<<<<<<<< SET 16   >>>>>>>>>>>>>===============================================
+
+
+DECLARE
+    num NUMBER;
+
+    -- User Defined Exception
+    negative_number EXCEPTION;
+
+BEGIN
+
+    -- Accept input from user
+    num := &num;
+
+    -- Check for negative number
+    IF num < 0 THEN
+        RAISE negative_number;
+    END IF;
+
+    -- Check Odd or Even
+    IF MOD(num, 2) = 0 THEN
+        DBMS_OUTPUT.PUT_LINE('Number is EVEN');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Number is ODD');
+    END IF;
+
+-- Exception Handling
+EXCEPTION
+
+    WHEN negative_number THEN
+        DBMS_OUTPUT.PUT_LINE('Negative number is not allowed');
+
+END;
+/
+
+
+
+=============================<<<<<<<<<<<< SET 17   >>>>>>>>>>>>>===============================================
+
+
+
+DECLARE
+    v_empno EMP.EMPNO%TYPE := &EMPNO;
+    v_deptno EMP.DEPTNO%TYPE;
+    v_sal EMP.SAL%TYPE;
+    v_comm EMP.COMM%TYPE;
+
+BEGIN
+
+    -- Fetch department, salary and commission
+    SELECT DEPTNO, SAL, NVL(COMM,0)
+    INTO v_deptno, v_sal, v_comm
+    FROM EMP
+    WHERE EMPNO = v_empno;
+
+    -- Salary update conditions
+    IF v_deptno = 10 THEN
+
+        UPDATE EMP
+        SET SAL = SAL + (SAL * 0.10)
+        WHERE EMPNO = v_empno;
+
+        DBMS_OUTPUT.PUT_LINE('Salary Updated by 10%');
+
+    ELSIF v_deptno = 20 THEN
+
+        UPDATE EMP
+        SET SAL = SAL + (SAL * 0.15)
+        WHERE EMPNO = v_empno;
+
+        DBMS_OUTPUT.PUT_LINE('Salary Updated by 15%');
+
+    ELSE
+
+        UPDATE EMP
+        SET SAL = SAL + NVL(COMM,0)
+        WHERE EMPNO = v_empno;
+
+        DBMS_OUTPUT.PUT_LINE('Salary Updated with SAL + COMM');
+
+    END IF;
+
+END;
+/
+
+
+
+=============================<<<<<<<<<<<< SET 18   >>>>>>>>>>>>>===============================================
+
+
+DECLARE
+    v_roll   STUD.ROLL%TYPE := &ROLL;
+    v_att    STUD.ATT%TYPE;
+BEGIN
+    -- Fetch attendance of entered roll number
+    SELECT ATT
+    INTO v_att
+    FROM STUD
+    WHERE ROLL = v_roll;
+
+    -- Control Structure
+    IF v_att < 75 THEN
+        UPDATE STUD
+        SET STATUS = 'D'
+        WHERE ROLL = v_roll;
+
+        DBMS_OUTPUT.PUT_LINE('Term not granted');
+    ELSE
+        UPDATE STUD
+        SET STATUS = 'ND'
+        WHERE ROLL = v_roll;
+
+        DBMS_OUTPUT.PUT_LINE('Term granted');
+    END IF;
+
+    COMMIT;
+
+-- Exception Handling
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Roll number does not exist');
+
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error occurred: ' || SQLERRM);
+END;
+/
+
+
+=============================<<<<<<<<<<<< SET 19   >>>>>>>>>>>>>===============================================
+
+DECLARE
+    v_roll      BORROWER.ROLLIN%TYPE := &ROLL_NO;
+    v_book      BORROWER.NAMEOFBOOK%TYPE := '&BOOK_NAME';
+    v_issueDate BORROWER.DATEOFISSUE%TYPE;
+    v_days      NUMBER;
+    v_fine      NUMBER := 0;
+
+BEGIN
+    -- Fetch issue date
+    SELECT DATEOFISSUE
+    INTO v_issueDate
+    FROM BORROWER
+    WHERE ROLLIN = v_roll
+    AND NAMEOFBOOK = v_book
+    AND STATUS = 'I';
+
+    -- Calculate number of days
+    v_days := SYSDATE - v_issueDate;
+
+    -- Control Structure for Fine Calculation
+    IF v_days BETWEEN 15 AND 30 THEN
+        v_fine := v_days * 5;
+
+    ELSIF v_days > 30 THEN
+        v_fine := (30 * 5) + ((v_days - 30) * 50);
+
+    ELSE
+        v_fine := 0;
+    END IF;
+
+    -- Update status from I to R
+    UPDATE BORROWER
+    SET STATUS = 'R'
+    WHERE ROLLIN = v_roll
+    AND NAMEOFBOOK = v_book;
+
+    -- Insert fine details if fine exists
+    IF v_fine > 0 THEN
+        INSERT INTO FINE (ROLL_NO, DATE, AMT)
+        VALUES (v_roll, SYSDATE, v_fine);
+
+        DBMS_OUTPUT.PUT_LINE('Fine Amount = Rs. ' || v_fine);
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('No Fine');
+    END IF;
+
+    COMMIT;
+
+-- Exception Handling
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Record not found or Book already returned');
+
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+/
+
+
+=============================<<<<<<<<<<<< SET 20   >>>>>>>>>>>>>===============================================
+
+
+
+select dept_name, avg(salary)
+from instructor
+group by dept_name
+having avg(salary)>42000;
+
+update instructor
+set salary=salary+salary*0.10
+where dept_name='computer';
+
+select name
+from instructor
+where name not in ('Amol','Amit');
+
+select name
+from student
+where name like '%am%';
+
+select name
+from student
+where dept_name='computer';
+
+select s.name
+from student s, course c
+where s.dept_name='computer'
+and c.title='DBMS';
+
+
+
+=============================<<<<<<<<<<<< SET 21   >>>>>>>>>>>>>===============================================
+
+DECLARE
+    -- Variable for number of top salaries
+    n NUMBER := &N;
+
+    -- Variables to store employee data
+    v_empno EMP.EMPNO%TYPE;
+    v_ename EMP.ENAME%TYPE;
+    v_sal   EMP.SAL%TYPE;
+
+    -- Explicit Cursor
+    CURSOR c1 IS
+        SELECT EMPNO, ENAME, SAL
+        FROM EMP
+        ORDER BY SAL DESC;
+
+BEGIN
+    OPEN c1;
+
+    FOR i IN 1..n LOOP
+        FETCH c1 INTO v_empno, v_ename, v_sal;
+
+        EXIT WHEN c1%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE(
+            'EMPNO: ' || v_empno ||
+            ' NAME: ' || v_ename ||
+            ' SALARY: ' || v_sal
+        );
+    END LOOP;
+
+    CLOSE c1;
+END;
+/
+
+
+
+=============================<<<<<<<<<<<< SET 22   >>>>>>>>>>>>>===============================================
+
+CREATE OR REPLACE PROCEDURE proc_Grade(
+    p_roll   IN RESULT.ROLL%TYPE,
+    p_name   IN STUD_MARKS.NAME%TYPE,
+    p_marks  IN STUD_MARKS.TOTAL_MARKS%TYPE
+)
+IS
+    v_class RESULT.CLASS%TYPE;
+BEGIN
+
+    -- Categorization using Control Structure
+    IF p_marks BETWEEN 990 AND 1500 THEN
+        v_class := 'Distinction';
+
+    ELSIF p_marks BETWEEN 900 AND 989 THEN
+        v_class := 'First Class';
+
+    ELSIF p_marks BETWEEN 825 AND 899 THEN
+        v_class := 'Higher Second Class';
+
+    ELSE
+        v_class := 'No Class';
+    END IF;
+
+    -- Insert result into RESULT table
+    INSERT INTO RESULT(ROLL, NAME, CLASS)
+    VALUES(p_roll, p_name, v_class);
+
+    DBMS_OUTPUT.PUT_LINE('Record Inserted Successfully');
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+/
+
+
+
+DECLARE
+    v_roll   RESULT.ROLL%TYPE := &ROLL;
+    v_name   STUD_MARKS.NAME%TYPE := '&NAME';
+    v_marks  STUD_MARKS.TOTAL_MARKS%TYPE := &MARKS;
+
+BEGIN
+    -- Calling Procedure
+    proc_Grade(v_roll, v_name, v_marks);
+END;
+/
+
+=============================<<<<<<<<<<<< SET 23   >>>>>>>>>>>>>===============================================
+
+
+select *
+from employees
+where salary >
+(
+select salary
+from employees
+where last_name='allen'
+);
+
+select *
+from employees
+where job_id=
+(
+select job_id
+from employees
+where last_name='martin'
+);
+
+select *
+from employees
+where department_id !=
+(
+select department_id
+from employees
+where last_name='king'
+);
+
+select *
+from employees
+where salary >
+(
+select salary
+from employees
+where last_name='blake'
+);
+
+select *
+from employees
+where hire_date >
+(
+select hire_date
+from employees
+where last_name='jones'
+);
+
+select *
+from employees
+where department_id=
+(
+select department_id
+from employees
+where last_name='clark'
+);
+
+
+
+
+=============================<<<<<<<<<<<< SET 24   >>>>>>>>>>>>>===============================================
+
+
+CREATE TABLE DEPARTMENT (
+    DEPARTMENT_ID NUMBER(4) PRIMARY KEY,
+    DEPARTMENT_NAME VARCHAR2(30) NOT NULL,
+    MANAGER_ID NUMBER(6),
+    LOCATION_ID NUMBER(4)
+);
+
+CREATE TABLE EMPLOYEE (
+    EMPLOYEE_ID NUMBER(6) PRIMARY KEY,
+    FIRST_NAME VARCHAR2(20),
+    LAST_NAME VARCHAR2(25) NOT NULL,
+    EMAIL VARCHAR2(25) NOT NULL,
+    PHONE_NUMBER VARCHAR2(20),
+    HIRE_DATE DATE NOT NULL,
+    JOB_ID VARCHAR2(10) NOT NULL,
+    SALARY NUMBER(8,2),
+    COMMISSION_PCT NUMBER(2,2),
+    MANAGER_ID NUMBER(6),
+    DEPARTMENT_ID NUMBER(4)
+);
+
+INSERT INTO DEPARTMENT VALUES (10, 'HR', 101, 1001);
+INSERT INTO DEPARTMENT VALUES (20, 'FINANCE', 102, 1002);
+INSERT INTO DEPARTMENT VALUES (30, 'SALES', 103, 1003);
+INSERT INTO DEPARTMENT VALUES (40, 'IT', 104, 1004);
+INSERT INTO DEPARTMENT VALUES (50, 'MARKETING', 105, 1005);
+
+INSERT INTO EMPLOYEE VALUES
+(1, 'ROHAN', 'SHARMA', 'rohan@gmail.com', '9876543210',
+TO_DATE('01-01-2022','DD-MM-YYYY'),
+'MANAGER', 70000, NULL, 101, 10);
+
+INSERT INTO EMPLOYEE VALUES
+(2, 'AMIT', 'PATIL', 'amit@gmail.com', '9876543211',
+TO_DATE('10-02-2022','DD-MM-YYYY'),
+'CLERK', 30000, NULL, 101, 20);
+
+INSERT INTO EMPLOYEE VALUES
+(3, 'NEHA', 'JOSHI', 'neha@gmail.com', '9876543212',
+TO_DATE('15-03-2022','DD-MM-YYYY'),
+'MANAGER', 80000, NULL, 102, 30);
+
+INSERT INTO EMPLOYEE VALUES
+(4, 'PRIYA', 'KULKARNI', 'priya@gmail.com', '9876543213',
+TO_DATE('20-04-2022','DD-MM-YYYY'),
+'ANALYST', 60000, NULL, 103, 40);
+
+INSERT INTO EMPLOYEE VALUES
+(5, 'RAHUL', 'DESHMUKH', 'rahul@gmail.com', '9876543214',
+TO_DATE('05-05-2022','DD-MM-YYYY'),
+'CLERK', 35000, NULL, 104, 20);
+
+
+1-- SELECT *
+FROM EMPLOYEE
+WHERE SALARY > ANY (
+    SELECT SALARY
+    FROM EMPLOYEE
+    WHERE DEPARTMENT_ID = 30
+);
+
+
+2-- SELECT *
+FROM EMPLOYEE
+WHERE SALARY > ALL (
+    SELECT SALARY
+    FROM EMPLOYEE
+    WHERE DEPARTMENT_ID = 20
+);
+
+
+3-- 	SELECT *
+FROM EMPLOYEE
+WHERE DEPARTMENT_ID IN (
+    SELECT DEPARTMENT_ID
+    FROM EMPLOYEE
+    WHERE JOB_ID = 'MANAGER'
+);
+
+4--- SELECT E1.*
+FROM EMPLOYEE E1
+WHERE SALARY > (
+    SELECT AVG(SALARY)
+    FROM EMPLOYEE E2
+    WHERE E1.DEPARTMENT_ID = E2.DEPARTMENT_ID
+);
+
+5--  SELECT *
+FROM EMPLOYEE E1
+WHERE SALARY = (
+    SELECT MAX(SALARY)
+    FROM EMPLOYEE E2
+    WHERE E1.DEPARTMENT_ID = E2.DEPARTMENT_ID
+);
+
+
+6--  SELECT *
+FROM EMPLOYEE
+WHERE JOB_ID IN (
+    SELECT JOB_ID
+    FROM EMPLOYEE
+    WHERE DEPARTMENT_ID = 20
+);
+=============================<<<<<<<<<<<< SET 25   >>>>>>>>>>>>>===============================================
+
+CREATE TABLE Library (
+    Book_ID NUMBER PRIMARY KEY,
+    Book_Name VARCHAR2(50),
+    Author VARCHAR2(50),
+    Price NUMBER
+);
+
+CREATE TABLE Library_Audit (
+    Book_ID NUMBER,
+    Book_Name VARCHAR2(50),
+    Author VARCHAR2(50),
+    Price NUMBER,
+    Action_Type VARCHAR2(10),
+    Action_Date DATE
+);
+
+CREATE OR REPLACE TRIGGER trg_library_update
+BEFORE UPDATE
+ON Library
+FOR EACH ROW
+BEGIN
+    INSERT INTO Library_Audit
+    VALUES(
+        :OLD.Book_ID,
+        :OLD.Book_Name,
+        :OLD.Author,
+        :OLD.Price,
+        'UPDATE',
+        SYSDATE
+    );
+END;
+/
+
+CREATE OR REPLACE TRIGGER trg_library_delete
+BEFORE DELETE
+ON Library
+FOR EACH ROW
+BEGIN
+    INSERT INTO Library_Audit
+    VALUES(
+        :OLD.Book_ID,
+        :OLD.Book_Name,
+        :OLD.Author,
+        :OLD.Price,
+        'DELETE',
+        SYSDATE
+    );
+END;
+/
+
+CREATE OR REPLACE TRIGGER trg_after_update
+AFTER UPDATE
+ON Library
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Library table updated successfully');
+END;
+/
+
+CREATE OR REPLACE TRIGGER trg_after_delete
+AFTER DELETE
+ON Library
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Record deleted successfully from Library table');
+END;
+/
+
+INSERT INTO Library VALUES(1, 'DBMS', 'Korth', 500);
+INSERT INTO Library VALUES(2, 'Java', 'James', 600);
+INSERT INTO Library VALUES(3, 'Python', 'Rossum', 700);
+
+COMMIT;
+
+UPDATE Library
+SET Price = 800
+WHERE Book_ID = 1;
+
+DELETE FROM Library
+WHERE Book_ID = 2;
+
+SELECT * FROM Library_Audit;
+
+
+
+
+=============================<<<<<<<<<<<< SET 26   >>>>>>>>>>>>>===============================================
+db.orderinfo.insertOne(
+{
+cust_id:123,
+cust_name:"abc",
+status:"A",
+price:250
+}
+)
+
+1-
+db.orderinfo.aggregate([
+{
+$match:{status:"A"}
+},
+{
+$group:
+{
+_id:"$cust_name",
+avg_price:{$avg:"$price"}
+}
+}
+])
+2-
+db.orderinfo.find(
+{
+price:{$gt:100,$lt:1000}
+},
+{
+status:1,
+_id:0
+})
+
+3-
+db.orderinfo.find(
+{},
+{
+_id:0
+}
+)
+
+4-
+db.orderinfo.createIndex(
+{cust_name:1}
+)
+
+
+
+
+
+
+
+
+
+
+
+=============================<<<<<<<<<<<< SET 27   >>>>>>>>>>>>>===============================================
+
+
+
+db.movies.insertOne(
+{
+name:"Movie1",
+type:"action",
+budget:1000000,
+producer:{
+name:"producer1",
+address:"PUNE"
+}
+})--create
+
+1-
+db.movies.find(
+{budget:{$gt:100000}},
+{name:1,_id:0}
+)
+
+db.movies.find(
+{"producer.address":"PUNE"},
+{"producer.name":1,_id:0}
+)
+
+db.movies.updateMany(
+{type:"action"},
+{$set:{type:"horror"}}
+)
+
+db.movies.find(
+{"producer.name":"producer1"},
+{"producer.address":1,name:1,_id:0}
+)
+
+
+
+=============================<<<<<<<<<<<< SET 28   >>>>>>>>>>>>>===============================================
+
+
+1-db.teachers.insertMany([
+{
+Tname:"omkar",
+dno:2,
+Experience:5,
+Salary:15000,
+Date_of_Joining:"10-01-2020"
+},
+{
+Tname:"rahul",
+dno:1,
+Experience:3,
+Salary:9000,
+Date_of_Joining:"12-02-2021"
+}
+])----create
+
+db.department.insertMany([
+{
+Dno:1,
+Dname:"IT"
+},
+{
+Dno:2,
+Dname:"COMP"
+}
+])---create
+
+
+db.students.insertMany([
+{
+Sname:"xyz",
+Roll_No:2,
+Class:"SE"
+},
+{
+Sname:"amit",
+Roll_No:5,
+Class:"FE"
+}
+])---create
+
+2-
+db.teachers.find(
+{
+dno:2,
+Salary:{$gte:10000}
+}
+)
+
+3-
+db.students.find(
+{
+$or:[
+{Roll_No:2},
+{Sname:"xyz"}
+]
+})
+
+4-
+db.students.updateOne(
+{Roll_No:5},
+{$set:{Sname:"rohan"}}
+)
+
+5-
+db.students.deleteMany(
+{Class:"FE"}
+)
+
+6-
+db.students.createIndex(
+{Sname:1}
+)
+
+
+
+=============================<<<<<<<<<<<< SET 29   >>>>>>>>>>>>>===============================================
+
+
+1-
+use department
+
+2-
+db.teacher.insertMany([
+{
+name:"omkar",
+department:"IT",
+experience:5,
+salary:50000
+},
+{
+name:"rahul",
+department:"IT",
+experience:3,
+salary:40000
+},
+{
+name:"pooja",
+department:"HR",
+experience:4,
+salary:30000
+}
+])
+
+3-
+db.teacher.aggregate([
+{
+$group:
+{
+_id:"$department",
+avg_salary:{$avg:"$salary"}
+}
+}
+])
+
+4-
+db.teacher.aggregate([
+{
+$group:
+{
+_id:"$department",
+count:{$sum:1}
+}
+}
+])
+
+5-
+db.teacher.aggregate([
+{
+$group:
+{
+_id:"$department",
+min_salary:{$min:"$salary"}
+}
+}
+])
+
+6-
+db.teacher.createIndex(
+{department:1}
+)
+
+
+=============================<<<<<<<<<<<< SET 30   >>>>>>>>>>>>>===============================================
+
+
+1-
+use product_detail
+
+2-
+show dbs
+
+3-
+db.createCollection("product")
+
+4-
+show collections
+
+5-
+db.product.insertMany([
+{item:"pen",price:10,quantity:2},
+{item:"book",price:50,quantity:1},
+{item:"pen",price:10,quantity:5},
+{item:"pencil",price:5,quantity:10}
+])
+
+6-
+db.product.find()
+
+7-
+db.product.createIndex(
+{item:1}
+)
+
+8-
+db.product.getIndexes()
+
+9-
+db.product.createIndex(
+{price:1,quantity:-1}
+)
+
+10-
+db.product.dropIndex(
+{price:1,quantity:-1}
+)
+
+
+=============================<<<<<<<<<<<< SET 31   >>>>>>>>>>>>>===============================================
+
+
+
+db.orderinfo.insertMany([
+{
+cust_id:123,
+cust_name:"abc",
+status:"A",
+price:250
+},
+{
+cust_id:124,
+cust_name:"xyz",
+status:"B",
+price:400
+}
+])---insert
+
+1-
+db.orderinfo.find(
+{
+price:{$gte:250,$lte:450}
+},
+{
+cust_name:1,
+_id:0
+}
+)
+
+2-
+db.orderinfo.updateOne(
+{cust_id:123},
+{$inc:{price:10}}
+)
+
+db.orderinfo.updateOne(
+{cust_id:124},
+{$inc:{price:-5}}
+)
+
+3-
+db.orderinfo.updateMany(
+{},
+{$unset:{status:""}}
+)
+
+4-
+db.orderinfo.find(
+{
+$or:[
+{status:"A"},
+{price:250}
+]
+},
+{
+cust_name:1,
+_id:0
+}
+)
+
+
+
+
+=============================<<<<<<<<<<<< SET 32   >>>>>>>>>>>>>===============================================
+
+
+1-
+update company
+set city='Pune'
+where cname='ABC';
+
+2-
+update works
+set sal=sal+sal*0.10
+where cname='Mbank'
+and sal<=20000;
+
+3-
+select ename
+from works
+where cname='Bosch'
+and city='Pune';
+
+4-
+delete from works
+where cname='SBC Company'
+and sal>50000;
+
+
+=============================<<<<<<<<<<<< SET 33   >>>>>>>>>>>>>===============================================
+
+
+1-
+use Employee
+
+2-
+db.createCollection("emp1")
+
+3-
+db.emp1.insertMany([
+{eno:1,ename:"nilesh",address:"pune",sal:12000},
+{eno:2,ename:"amit",address:"mumbai",sal:4000},
+{eno:3,ename:"neha",address:"nashik",sal:18000},
+{eno:4,ename:"rahul",address:"pune",sal:7000}
+])
+
+4-
+db.emp1.find()
+
+5-
+db.emp1.find(
+{sal:{$gt:5000}}
+)
+
+6-
+db.emp1.find(
+{sal:{$lt:15000}}
+)
+
+7-
+db.emp1.find(
+{
+sal:{$gt:10000,$lt:20000}
+}
+)
+
+8-
+db.emp1.updateMany(
+{},
+{$mul:{sal:1.10}}
+)
+
+9-
+db.emp1.deleteMany(
+{sal:{$lt:5000}}
+)
+
+10-
+db.emp1.renameCollection("employee1")
+
+11-
+db.employee1.find(
+{ename:/^n/}
+)
+
+12-
+db.employee1.find().sort(
+{ename:1}
+)
+
+13-
+use Employee1
+
+14-
+db.dropDatabase()
+
+15-
+db.emp1.insertOne(
+{eno:5,ename:"omkar",address:"pune",sal:15000}
+)
+
+16-
+db.emp1.drop()
+
+
+=============================<<<<<<<<<<<< SET 34   >>>>>>>>>>>>>===============================================
+
+
+1-
+select employee_name
+from works
+where company_name='First Bank Corporation';
+
+2-
+select e.employee_name, e.city
+from employee e, works w
+where e.employee_name=w.employee_name
+and w.company_name='First Bank Corporation';
+
+3-
+select e.employee_name, e.street, e.city
+from employee e, works w
+where e.employee_name=w.employee_name
+and w.company_name='First Bank Corporation'
+and w.salary>10000;
+
+4-
+select e.employee_name
+from employee e, works w, company c
+where e.employee_name=w.employee_name
+and w.company_name=c.company_name
+and e.city=c.city;
+
+5-
+select e.employee_name
+from employee e, employee m, manages mg
+where e.employee_name=mg.employee_name
+and mg.manager_name=m.employee_name
+and e.city=m.city
+and e.street=m.street;
+
+6-
+select employee_name
+from works
+where company_name!='First Bank Corporation';
+
+7-
+update works
+set salary=salary+salary*0.10
+where company_name='First Bank Corporation';
+
+8-
+delete from works
+where company_name='Small Bank Corporation';
+
+
+
+=============================<<<<<<<<<<<< SET 35   >>>>>>>>>>>>>===============================================
+
+
+1-
+select employee_name
+from works
+where salary > all
+(
+select salary
+from works
+where company_name='Small Bank Corporation'
+);
+
+2-
+select distinct c1.company_name
+from company c1
+where c1.city in
+(
+select city
+from company
+where company_name='Small Bank Corporation'
+);
+
+3-
+select employee_name
+from works w
+where salary >
+(
+select avg(salary)
+from works
+where company_name=w.company_name
+);
+
+4-
+select company_name
+from works
+group by company_name
+having count(*)=
+(
+select max(count(*))
+from works
+group by company_name
+);
+
+5-
+select company_name
+from works
+group by company_name
+having sum(salary)=
+(
+select min(sum(salary))
+from works
+group by company_name
+);
+
+6-
+select company_name
+from works
+group by company_name
+having avg(salary)>
+(
+select avg(salary)
+from works
+where company_name='First Bank Corporation'
+);
+
+7-
+update employee
+set city='Newtown'
+where employee_name='Jones';
